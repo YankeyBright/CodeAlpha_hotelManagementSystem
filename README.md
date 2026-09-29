@@ -1,166 +1,95 @@
-# Hotel Reservation System
+# Lumina Hotel Reservation System
 
-A **console-based Java application** to search, book, and manage hotel rooms with room categorization, payment simulation, and file I/O persistence.
+[![Java](https://img.shields.io/badge/Java-8%2B-ED8B00?style=flat&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-blue?style=flat)]()
+[![Internship](https://img.shields.io/badge/CodeAlpha-Java%20Internship%20Task%204-green?style=flat)]()
+[![Dependencies](https://img.shields.io/badge/Dependencies-Zero%20(Pure%20Java%20SE)-success?style=flat)]()
 
-> **CodeAlpha Java Programming Internship — Task 4**
+A modern, minimalist desktop application for hotel room reservations, guest management, payment simulation, and printable invoice generation. Built with a clean 4-layer Object-Oriented Programming (OOP) architecture and pure Java Swing.
 
----
-
-## Features
-
-- **Search Available Rooms** — Filter by room type (Standard, Deluxe, Suite) or view all
-- **Book a Room** — Select room, enter guest details, confirm booking with date validation
-- **Cancel a Reservation** — Cancel by reservation ID with confirmation prompt
-- **View Booking Details** — Look up any reservation and its payment receipt
-- **View All Rooms** — See all rooms with real-time availability status
-- **View All Reservations** — Summary of all bookings with status
-- **Payment Simulation** — Simulated payment processing with Credit Card, Debit Card, or Cash
-- **Data Persistence** — All data saved to CSV files (rooms, guests, reservations, payments)
-- **Returning Guest Detection** — Automatically recognizes returning guests by phone number
+Developed as part of the **CodeAlpha Java Programming Internship** (Task 4).
 
 ---
 
-## Room Categories
+## 📸 Key Features
 
-| Type     | Price Range     | Rooms Available |
-|----------|-----------------|-----------------|
-| Standard | $80 - $85/night | 3 rooms         |
-| Deluxe   | $150 - $160/night | 3 rooms       |
-| Suite    | $280 - $350/night | 4 rooms       |
+- **Minimalist Aesthetic**: Clean Slate & Neutral UI (`#0F172A`, `#F8FAFC`) with crisp typography, flat cards, and subtle 1px dividers.
+- **Room Search & Categorization**: Filter by room category (**Standard**, **Deluxe**, **Executive Suite**, **Family Suite**) and specific check-in / check-out dates.
+- **Dynamic Date Overlap Engine**: Evaluates true availability across requested calendar dates rather than simple binary flags.
+- **Returning Guest Detection**: Automatically fills guest name and email when an existing phone number is entered.
+- **Reservation Management**: View all active and past bookings, search by guest name or reservation ID, and cancel bookings with instant room release.
+- **Payment Simulation**: Process payments using Credit Card, Debit Card, Cash, or Mobile Money with automatic transaction reference generation.
+- **Printable Invoices**: Generates a clean, branded HTML invoice complete with itemized charges, taxes, and barcode simulation that opens directly in your browser with one click.
+- **Zero-Setup File Persistence**: Uses lightweight CSV files (`data/rooms.csv`, `data/reservations.csv`, `data/guests.csv`, `data/payments.csv`). Runs anywhere without installing or configuring a MySQL server.
 
 ---
 
-## Project Structure
+## 🏗️ 4-Layer Architecture
 
 ```
-HotelReservationSystem/
-├── src/
-│   ├── model/                  # Domain model classes
-│   │   ├── Room.java           # Hotel room with type and pricing
-│   │   ├── RoomType.java       # Enum: STANDARD, DELUXE, SUITE
-│   │   ├── Guest.java          # Guest with contact information
-│   │   ├── Reservation.java    # Reservation linking guest to room
-│   │   ├── ReservationStatus.java  # Enum: CONFIRMED, CANCELLED, COMPLETED
-│   │   ├── Payment.java        # Payment with receipt generation
-│   │   └── PaymentMethod.java  # Enum: CREDIT_CARD, DEBIT_CARD, CASH
-│   ├── service/                # Business logic layer
-│   │   └── HotelManager.java   # Core operations (search, book, cancel)
-│   ├── util/                   # Utility classes
-│   │   ├── FileManager.java    # CSV file I/O for all entities
-│   │   ├── IdGenerator.java    # Unique ID generation
-│   │   └── InputValidator.java # Input validation helpers
-│   └── HotelApp.java           # Main application entry point
-├── data/                       # Auto-generated data files
-│   ├── rooms.csv
-│   ├── guests.csv
-│   ├── reservations.csv
-│   └── payments.csv
-└── README.md
-```
-
----
-
-## How to Compile and Run
-
-### Prerequisites
-- **Java JDK 8** or higher installed
-- Terminal or Command Prompt
-
-### Step 1: Navigate to the project directory 
-```bash
-cd HotelReservationSystem
-```
-
-### Step 2: Compile all Java files
-```bash
-javac -d out src/model/*.java src/util/*.java src/service/*.java src/HotelApp.java
-```
-
-### Step 3: Run the application
-```bash
-java -cp out HotelApp
-```
-
-> **Note:** The `data/` directory with default rooms will be created automatically on first run.
-
----
-
-## OOP Concepts Used
-
-| Concept | Where Used |
-|---------|------------|
-| **Encapsulation** | All fields are `private` with getters; state changes through methods only |
-| **Enums** | `RoomType`, `ReservationStatus`, `PaymentMethod` — type-safe constants |
-| **Constructors** | Overloaded constructors for creation vs. file loading |
-| **Composition** | `Reservation` contains `Guest` and `Room`; `Payment` contains `Reservation` |
-| **Collections** | `ArrayList` used to manage rooms, guests, reservations, and payments |
-| **Validation** | Invariant checks in constructors and business methods |
-| **Separation of Concerns** | `model/` (data), `service/` (logic), `util/` (helpers), `HotelApp` (UI) |
-
----
-
-## Data Persistence
-
-All data is stored in CSV files under the `data/` directory:
-
-- **rooms.csv** — Room ID, type, price, availability
-- **guests.csv** — Guest ID, name, phone, email
-- **reservations.csv** — Reservation ID, guest ID, room ID, dates, status, timestamp
-- **payments.csv** — Payment ID, reservation ID, amount, method, paid status
-
-Data is loaded on startup and saved automatically after every booking, cancellation, or payment.
-
----
-
-## Sample Usage
-
-```
-+==============================================+
-|       HOTEL RESERVATION SYSTEM               |
-+==============================================+
-|  1. Search Available Rooms                   |
-|  2. Book a Room                              |
-|  3. Cancel a Reservation                     |
-|  4. View Booking Details                     |
-|  5. View All Rooms                           |
-|  6. View All Reservations                    |
-|  7. Exit                                     |
-+==============================================+
-  Enter your choice: 2
-
-  --- Book a Room ---
-  Select room type:
-  0. All Types
-  1. Standard  ($80 - $85/night)
-  2. Deluxe    ($150 - $160/night)
-  3. Suite     ($280 - $350/night)
-  Choice: 2
-
-  Available Rooms:
-  1. Room R004  | Deluxe     | $ 150.00/night | AVAILABLE
-  2. Room R005  | Deluxe     | $ 150.00/night | AVAILABLE
-  3. Room R006  | Deluxe     | $ 160.00/night | AVAILABLE
-  Select room number (1-3): 1
-  Enter check-in date (yyyy-MM-dd): 2026-10-01
-  Enter check-out date (yyyy-MM-dd): 2026-10-05
-  Enter guest phone number: 0551234567
-  Enter guest name: John Doe
-  Enter guest email (optional, press Enter to skip): john@email.com
-
-  --- Booking Summary ---
-  Room      : R004 (Deluxe)
-  Guest     : John Doe
-  Check-in  : 2026-10-01
-  Check-out : 2026-10-05
-  Nights    : 4
-  Total     : $600.00
-  Confirm booking? (yes/no): yes
-
-  Booking confirmed!
+src/com/hotel/
+├── model/                  # Domain entities & business rules
+│   ├── Room.java           # Room details, pricing, floor, amenities
+│   ├── RoomType.java       # Category enum (Standard, Deluxe, Suite, Family)
+│   ├── Guest.java          # Guest contact and identification
+│   ├── Reservation.java    # Booking with date overlap calculation
+│   ├── ReservationStatus.java  # Confirmed / Cancelled lifecycle
+│   ├── Payment.java        # Transaction record
+│   └── PaymentMethod.java  # Payment options enum
+│
+├── storage/                # File persistence layer
+│   └── FileStorage.java    # CSV reading, writing, and seed data initialization
+│
+├── service/                # Core business logic
+│   └── HotelService.java   # Availability check, booking, cancellations, payments
+│
+├── ui/                     # Presentation layer (Pure Java Swing)
+│   ├── UITheme.java        # Minimalist design system (colors, fonts, borders)
+│   ├── HeaderPanel.java    # Top brand header bar
+│   ├── RoomTableModel.java # Table model for room inventory
+│   ├── ReservationTableModel.java # Table model for reservations
+│   ├── SearchBookPanel.java # Room discovery & booking tab
+│   ├── BookingDialog.java  # Interactive guest checkout modal
+│   ├── PaymentDialog.java  # Payment simulation modal
+│   ├── ManageReservationsPanel.java # Reservation management tab
+│   ├── InvoiceGenerator.java # Styled HTML invoice generator & browser preview
+│   └── MainFrame.java      # Main application window
+│
+└── Main.java               # Application entry point
 ```
 
 ---
 
-## Author
+## 🚀 How to Run
 
-Built as part of the **CodeAlpha Java Programming Internship** program.
+### Option 1: 1-Click Run (Windows)
+Double-click **`run.bat`** in the project root folder.
+
+### Option 2: Command Line (Any OS)
+
+1. **Compile all source files:**
+   ```bash
+   javac -d out src/com/hotel/model/*.java src/com/hotel/storage/*.java src/com/hotel/service/*.java src/com/hotel/ui/*.java src/com/hotel/Main.java
+   ```
+
+2. **Launch the application:**
+   ```bash
+   java -cp out com.hotel.Main
+   ```
+
+---
+
+## 🔒 Business Invariants & OOP Principles
+
+| Principle | Implementation |
+|---|---|
+| **Encapsulation** | Strict private fields with immutable IDs and validated mutators |
+| **Date Range Calculation** | `overlapsWith(start, end)`: mathematical interval intersection `(start < res.end) && (end > res.start)` |
+| **Separation of Concerns** | UI never touches file I/O directly; all data routes through `HotelService` |
+| **Fault Tolerance** | Missing data files are automatically initialized with default seed rooms |
+| **Portability** | Pure Java SE standard library — zero Maven/Gradle/external JAR dependencies |
+
+---
+
+## 📄 License & Credits
+Built for the **CodeAlpha Java Programming Internship** by **Bright Yankey**.
