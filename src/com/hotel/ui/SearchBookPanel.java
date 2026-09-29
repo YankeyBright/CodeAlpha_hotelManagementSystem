@@ -5,6 +5,7 @@ import com.hotel.service.HotelService;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.io.File;
 import java.time.LocalDate;
@@ -37,12 +38,15 @@ public class SearchBookPanel extends JPanel {
         typeFilterCombo = new JComboBox<>(new String[]{"All Categories", "Standard Room", "Deluxe Room", "Executive Suite", "Family Suite"});
         typeFilterCombo.setFont(UITheme.FONT_BODY);
         typeFilterCombo.setBackground(Color.WHITE);
+        typeFilterCombo.setPreferredSize(new Dimension(170, 36));
 
         checkInField = UITheme.styledTextField(10);
         checkInField.setText(LocalDate.now().toString());
+        checkInField.setPreferredSize(new Dimension(120, 36));
 
         checkOutField = UITheme.styledTextField(10);
         checkOutField.setText(LocalDate.now().plusDays(2).toString());
+        checkOutField.setPreferredSize(new Dimension(120, 36));
 
         JButton searchBtn = UITheme.primaryButton("Find Available");
         searchBtn.addActionListener(e -> performSearch());
@@ -66,13 +70,38 @@ public class SearchBookPanel extends JPanel {
         // 2. Room Table
         tableModel = new RoomTableModel();
         table = new JTable(tableModel);
-        table.setRowHeight(36);
+        table.setRowHeight(38);
         table.setFont(UITheme.FONT_BODY);
         table.getTableHeader().setFont(UITheme.FONT_BODY_BOLD);
-        table.getTableHeader().setBackground(UITheme.BG_APP);
+        table.getTableHeader().setBackground(new Color(0xF1, 0xF5, 0xF9));
+        table.getTableHeader().setForeground(UITheme.TEXT_MAIN);
+        table.getTableHeader().setPreferredSize(new Dimension(0, 36));
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setShowGrid(false);
-        table.setIntercellSpacing(new Dimension(0, 0));
+        table.setShowVerticalLines(false);
+        table.setShowHorizontalLines(true);
+        table.setGridColor(new Color(0xF1, 0xF5, 0xF9));
+        table.setSelectionBackground(UITheme.ACCENT_LIGHT);
+        table.setSelectionForeground(UITheme.TEXT_MAIN);
+
+        // Custom Cell Padding
+        DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable t, Object val, boolean isSel, boolean hasFoc, int row, int col) {
+                Component c = super.getTableCellRendererComponent(t, val, isSel, hasFoc, row, col);
+                setBorder(new EmptyBorder(0, 12, 0, 12));
+                return c;
+            }
+        };
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(cellRenderer);
+        }
+
+        // Column widths
+        table.getColumnModel().getColumn(0).setPreferredWidth(90);  // Room #
+        table.getColumnModel().getColumn(1).setPreferredWidth(160); // Category
+        table.getColumnModel().getColumn(2).setPreferredWidth(120); // Rate
+        table.getColumnModel().getColumn(3).setPreferredWidth(90);  // Floor
+        table.getColumnModel().getColumn(4).setPreferredWidth(350); // Amenities
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(UITheme.cardBorder());

@@ -5,6 +5,7 @@ import com.hotel.service.HotelService;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class ManageReservationsPanel extends JPanel {
         searchBar.setBorder(UITheme.cardBorder());
 
         searchField = UITheme.styledTextField(20);
+        searchField.setPreferredSize(new Dimension(240, 36));
         searchField.setToolTipText("Filter by Guest Name or Reservation ID");
 
         JButton searchBtn = UITheme.primaryButton("Filter");
@@ -43,7 +45,11 @@ public class ManageReservationsPanel extends JPanel {
             reloadTable();
         });
 
-        searchBar.add(new JLabel("Search Bookings:"));
+        JLabel searchLbl = new JLabel("Search Bookings:");
+        searchLbl.setFont(UITheme.FONT_BODY_BOLD);
+        searchLbl.setForeground(UITheme.TEXT_MAIN);
+
+        searchBar.add(searchLbl);
         searchBar.add(searchField);
         searchBar.add(searchBtn);
         searchBar.add(clearBtn);
@@ -53,12 +59,43 @@ public class ManageReservationsPanel extends JPanel {
         // 2. Table
         tableModel = new ReservationTableModel();
         table = new JTable(tableModel);
-        table.setRowHeight(36);
+        table.setRowHeight(38);
         table.setFont(UITheme.FONT_BODY);
         table.getTableHeader().setFont(UITheme.FONT_BODY_BOLD);
-        table.getTableHeader().setBackground(UITheme.BG_APP);
+        table.getTableHeader().setBackground(new Color(0xF1, 0xF5, 0xF9));
+        table.getTableHeader().setForeground(UITheme.TEXT_MAIN);
+        table.getTableHeader().setPreferredSize(new Dimension(0, 36));
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setShowGrid(false);
+        table.setShowVerticalLines(false);
+        table.setShowHorizontalLines(true);
+        table.setGridColor(new Color(0xF1, 0xF5, 0xF9));
+        table.setSelectionBackground(UITheme.ACCENT_LIGHT);
+        table.setSelectionForeground(UITheme.TEXT_MAIN);
+
+        // Custom Cell Padding & Status Color
+        DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable t, Object val, boolean isSel, boolean hasFoc, int row, int col) {
+                Component c = super.getTableCellRendererComponent(t, val, isSel, hasFoc, row, col);
+                setBorder(new EmptyBorder(0, 12, 0, 12));
+                if (col == 8 && val != null) { // Status column
+                    String status = val.toString();
+                    if ("Confirmed".equalsIgnoreCase(status)) {
+                        setForeground(UITheme.SUCCESS);
+                        setFont(UITheme.FONT_BODY_BOLD);
+                    } else if ("Cancelled".equalsIgnoreCase(status)) {
+                        setForeground(UITheme.DANGER);
+                        setFont(UITheme.FONT_BODY_BOLD);
+                    }
+                } else if (!isSel) {
+                    setForeground(UITheme.TEXT_MAIN);
+                }
+                return c;
+            }
+        };
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(cellRenderer);
+        }
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(UITheme.cardBorder());

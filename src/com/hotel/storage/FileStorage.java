@@ -31,7 +31,9 @@ public class FileStorage {
     public List<Room> loadRooms() {
         List<Room> list = new ArrayList<>();
         File file = new File(ROOMS_FILE);
-        if (!file.exists()) return list;
+        if (!file.exists()) {
+            initDefaultRoomsIfEmpty();
+        }
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
             String line;
@@ -39,20 +41,31 @@ public class FileStorage {
                 line = line.trim();
                 if (line.isEmpty() || line.startsWith("#")) continue;
 
-                // Format: roomId,type,price,floor,"amenities"
+                // Handles comma splitting with quoted strings
                 String[] parts = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-                if (parts.length >= 5) {
-                    String roomId = parts[0].trim();
-                    RoomType type = RoomType.valueOf(parts[1].trim());
-                    double price = Double.parseDouble(parts[2].trim());
-                    int floor = Integer.parseInt(parts[3].trim());
-                    String amenities = parts[4].replace("\"", "").trim();
-                    list.add(new Room(roomId, type, price, floor, amenities));
+                if (parts.length >= 3) {
+                    try {
+                        String roomId = parts[0].trim();
+                        RoomType type = RoomType.valueOf(parts[1].trim());
+                        double price = Double.parseDouble(parts[2].trim());
+                        int floor = (parts.length >= 4 && parts[3].trim().matches("\\d+")) ? Integer.parseInt(parts[3].trim()) : 1;
+                        String amenities = parts.length >= 5 ? parts[4].replace("\"", "").trim() : type.getDescription();
+                        list.add(new Room(roomId, type, price, floor, amenities));
+                    } catch (Exception ex) {
+                        System.err.println("Skipping malformed room row: " + line + " (" + ex.getMessage() + ")");
+                    }
                 }
             }
         } catch (Exception e) {
             System.err.println("Warning loading rooms: " + e.getMessage());
         }
+
+        // If file was empty or corrupted, reinitialize defaults
+        if (list.isEmpty()) {
+            initDefaultRoomsIfEmpty();
+            return loadRooms();
+        }
+
         return list;
     }
 
@@ -80,11 +93,11 @@ public class FileStorage {
                 if (line.isEmpty() || line.startsWith("#")) continue;
 
                 String[] parts = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-                if (parts.length >= 4) {
+                if (parts.length >= 3) {
                     String guestId = parts[0].trim();
                     String name = parts[1].replace("\"", "").trim();
                     String phone = parts[2].trim();
-                    String email = parts[3].trim();
+                    String email = parts.length > 3 ? parts[3].trim() : "";
                     list.add(new Guest(guestId, name, phone, email));
                 }
             }
@@ -119,21 +132,25 @@ public class FileStorage {
 
                 String[] parts = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
                 if (parts.length >= 8) {
-                    String resId = parts[0].trim();
-                    String guestId = parts[1].trim();
-                    String roomId = parts[2].trim();
-                    LocalDate checkIn = LocalDate.parse(parts[3].trim());
-                    LocalDate checkOut = LocalDate.parse(parts[4].trim());
-                    ReservationStatus status = ReservationStatus.valueOf(parts[5].trim());
-                    double totalPrice = Double.parseDouble(parts[6].trim());
-                    LocalDateTime bookingTime = LocalDateTime.parse(parts[7].trim());
-                    String notes = parts.length > 8 ? parts[8].replace("\"", "").trim() : "";
+                    try {
+                        String resId = parts[0].trim();
+                        String guestId = parts[1].trim();
+                        String roomId = parts[2].trim();
+                        LocalDate checkIn = LocalDate.parse(parts[3].trim());
+                        LocalDate checkOut = LocalDate.parse(parts[4].trim());
+                        ReservationStatus status = ReservationStatus.valueOf(parts[5].trim());
+                        double totalPrice = Double.parseDouble(parts[6].trim());
+                        LocalDateTime bookingTime = LocalDateTime.parse(parts[7].trim());
+                        String notes = parts.length > 8 ? parts[8].replace("\"", "").trim() : "";
 
-                    Guest guest = guestMap.get(guestId);
-                    Room room = roomMap.get(roomId);
+                        Guest guest = guestMap.get(guestId);
+                        Room room = roomMap.get(roomId);
 
-                    if (guest != null && room != null) {
-                        list.add(new Reservation(resId, guest, room, checkIn, checkOut, status, totalPrice, bookingTime, notes));
+                        if (guest != null && room != null) {
+                            list.add(new Reservation(resId, guest, room, checkIn, checkOut, status, totalPrice, bookingTime, notes));
+                        }
+                    } catch (Exception ex) {
+                        System.err.println("Skipping malformed reservation: " + line);
                     }
                 }
             }
@@ -168,14 +185,18 @@ public class FileStorage {
 
                 String[] parts = line.split(",");
                 if (parts.length >= 7) {
-                    String payId = parts[0].trim();
-                    String resId = parts[1].trim();
-                    double amount = Double.parseDouble(parts[2].trim());
-                    PaymentMethod method = PaymentMethod.valueOf(parts[3].trim());
-                    LocalDateTime timestamp = LocalDateTime.parse(parts[4].trim());
-                    String ref = parts[5].trim();
-                    boolean success = Boolean.parseBoolean(parts[6].trim());
-                    list.add(new Payment(payId, resId, amount, method, timestamp, ref, success));
+                    try {
+                        String payId = parts[0].trim();
+                        String resId = parts[1].trim();
+                        double amount = Double.parseDouble(parts[2].trim());
+                        PaymentMethod method = PaymentMethod.valueOf(parts[3].trim());
+                        LocalDateTime timestamp = LocalDateTime.parse(parts[4].trim());
+                        String ref = parts[5].trim();
+                        boolean success = Boolean.parseBoolean(parts[6].trim());
+                        list.add(new Payment(payId, resId, amount, method, timestamp, ref, success));
+                    } catch (Exception ex) {
+                        System.err.println("Skipping malformed payment: " + line);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -200,16 +221,16 @@ public class FileStorage {
         File file = new File(ROOMS_FILE);
         if (!file.exists() || file.length() == 0) {
             List<Room> defaults = Arrays.asList(
-                    new Room("101", RoomType.STANDARD, 85.00, 1, "Queen Bed, Ensuite Bath, High-speed Wi-Fi, TV"),
-                    new Room("102", RoomType.STANDARD, 85.00, 1, "Queen Bed, Ensuite Bath, High-speed Wi-Fi, TV"),
-                    new Room("103", RoomType.STANDARD, 90.00, 1, "Twin Beds, Ensuite Bath, Garden View, Wi-Fi"),
-                    new Room("201", RoomType.DELUXE, 145.00, 2, "King Bed, City View, Mini Bar, Ergonomic Desk"),
-                    new Room("202", RoomType.DELUXE, 145.00, 2, "King Bed, City View, Mini Bar, Smart TV"),
-                    new Room("203", RoomType.DELUXE, 155.00, 2, "King Bed, Balcony, Espresso Machine, Mini Bar"),
-                    new Room("301", RoomType.SUITE, 260.00, 3, "Master Bedroom, Living Room, Jacuzzi, Panoramic View"),
-                    new Room("302", RoomType.SUITE, 280.00, 3, "Penthouse Level, Private Lounge, Butler Service"),
-                    new Room("401", RoomType.FAMILY, 320.00, 4, "Two Bedrooms, Kitchenette, Dining Area, Kids Corner"),
-                    new Room("402", RoomType.FAMILY, 340.00, 4, "Two Bedrooms, Balcony, Kitchenette, Board Games")
+                    new Room("101", RoomType.STANDARD, 85.00, 1, "Queen Bed, Ensuite Bath, High-Speed Wi-Fi, 43-inch Smart TV"),
+                    new Room("102", RoomType.STANDARD, 85.00, 1, "Queen Bed, Ensuite Bath, High-Speed Wi-Fi, Coffee Maker"),
+                    new Room("103", RoomType.STANDARD, 90.00, 1, "Two Twin Beds, Garden View, High-Speed Wi-Fi, Ensuite Bath"),
+                    new Room("201", RoomType.DELUXE, 145.00, 2, "King Bed, Skyline View, Mini-Bar, Work Desk, Nespresso"),
+                    new Room("202", RoomType.DELUXE, 145.00, 2, "King Bed, City View, Marble Bath, Mini-Bar, Smart TV"),
+                    new Room("203", RoomType.DELUXE, 155.00, 2, "King Bed, Private Balcony, Espresso Machine, City View"),
+                    new Room("301", RoomType.SUITE, 260.00, 3, "Master Bedroom, Living Area, Deep Soaking Tub, Panoramic View"),
+                    new Room("302", RoomType.SUITE, 280.00, 3, "Penthouse Suite, Private Terrace, Butler Service, Kitchenette"),
+                    new Room("401", RoomType.FAMILY, 320.00, 4, "Two Interconnected Bedrooms, Kitchenette, Dining Area, 2 Baths"),
+                    new Room("402", RoomType.FAMILY, 340.00, 4, "Two King Bedrooms, Large Balcony, Kitchenette, Lounge Space")
             );
             saveRooms(defaults);
         }
