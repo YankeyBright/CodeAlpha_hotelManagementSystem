@@ -1,0 +1,20 @@
+﻿# Compiled class files
+*.class
+bin/
+out/
+
+# Cloned reference folder
+CodeAlpha_HotelManagementSystem/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+.project
+.classpath
+.settings/
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
