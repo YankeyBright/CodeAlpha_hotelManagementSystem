@@ -9,10 +9,12 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.io.File;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 /**
  * Clean room search, category filter, and booking workflow panel.
+ * Displays calculated duration and total price estimates directly in the inventory table.
  */
 public class SearchBookPanel extends JPanel {
     private final HotelService service;
@@ -23,6 +25,7 @@ public class SearchBookPanel extends JPanel {
     private final JTextField checkInField;
     private final JTextField checkOutField;
     private final JLabel resultCountLabel;
+    private final JLabel estimateSelectionLabel;
 
     public SearchBookPanel(HotelService service, Runnable onDataChanged) {
         this.service = service;
@@ -83,25 +86,12 @@ public class SearchBookPanel extends JPanel {
         table.setSelectionBackground(UITheme.ACCENT_LIGHT);
         table.setSelectionForeground(UITheme.TEXT_MAIN);
 
-        // Custom Cell Padding
-        DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable t, Object val, boolean isSel, boolean hasFoc, int row, int col) {
-                Component c = super.getTableCellRendererComponent(t, val, isSel, hasFoc, row, col);
-                setBorder(new EmptyBorder(0, 12, 0, 12));
-                return c;
+        // Selection listener to update real-time estimate text
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                updateSelectionEstimate();
             }
-        };
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            table.getColumnModel().getColumn(i).setCellRenderer(cellRenderer);
-        }
-
-        // Column widths
-        table.getColumnModel().getColumn(0).setPreferredWidth(90);  // Room #
-        table.getColumnModel().getColumn(1).setPreferredWidth(160); // Category
-        table.getColumnModel().getColumn(2).setPreferredWidth(120); // Rate
-        table.getColumnModel().getColumn(3).setPreferredWidth(90);  // Floor
-        table.getColumnModel().getColumn(4).setPreferredWidth(350); // Amenities
+        });
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(UITheme.cardBorder());
@@ -113,9 +103,21 @@ public class SearchBookPanel extends JPanel {
         JPanel footer = new JPanel(new BorderLayout());
         footer.setOpaque(false);
 
+        JPanel leftStatusBox = new JPanel();
+        leftStatusBox.setLayout(new BoxLayout(leftStatusBox, BoxLayout.Y_AXIS));
+        leftStatusBox.setOpaque(false);
+
         resultCountLabel = new JLabel("Loading inventory...");
         resultCountLabel.setFont(UITheme.FONT_SUBTITLE);
         resultCountLabel.setForeground(UITheme.TEXT_MUTED);
+
+        estimateSelectionLabel = new JLabel("Click any room to view full booking details & estimate");
+        estimateSelectionLabel.setFont(UITheme.FONT_BODY_BOLD);
+        estimateSelectionLabel.setForeground(UITheme.ACCENT);
+
+        leftStatusBox.add(resultCountLabel);
+        leftStatusBox.add(Box.createVerticalStrut(4));
+        leftStatusBox.add(estimateSelectionLabel);
 
         JPanel btnBox = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         btnBox.setOpaque(false);
@@ -125,7 +127,7 @@ public class SearchBookPanel extends JPanel {
 
         btnBox.add(bookBtn);
 
-        footer.add(resultCountLabel, BorderLayout.WEST);
+        footer.add(leftStatusBox, BorderLayout.WEST);
         footer.add(btnBox, BorderLayout.EAST);
         add(footer, BorderLayout.SOUTH);
 
@@ -143,6 +145,51 @@ public class SearchBookPanel extends JPanel {
         return p;
     }
 
+    private void styleTableColumns() {
+        DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable t, Object val, boolean isSel, boolean hasFoc, int row, int col) {
+                Component c = super.getTableCellRendererComponent(t, val, isSel, hasFoc, row, col);
+                setBorder(new EmptyBorder(0, 12, 0, 12));
+                if (col == 3 && !isSel) { // Total column highlight
+                    setForeground(UITheme.ACCENT);
+                    setFont(UITheme.FONT_BODY_BOLD);
+                } else if (!isSel) {
+                    setForeground(UITheme.TEXT_MAIN);
+                }
+                return c;
+            }
+        };
+
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(cellRenderer);
+        }
+
+        if (table.getColumnCount() >= 6) {
+            table.getColumnModel().getColumn(0).setPreferredWidth(80);  // Room #
+            table.getColumnModel().getColumn(1).setPreferredWidth(140); // Category
+            table.getColumnModel().getColumn(2).setPreferredWidth(110); // Rate
+            table.getColumnModel().getColumn(3).setPreferredWidth(130); // Total
+            table.getColumnModel().getColumn(4).setPreferredWidth(80);  // Floor
+            table.getColumnModel().getColumn(5).setPreferredWidth(340); // Amenities
+        }
+    }
+
+    private void updateSelectionEstimate() {
+        int row = table.getSelectedRow();
+        if (row >= 0) {
+            Room r = tableModel.getRoomAt(row);
+            if (r != null) {
+                long nights = tableModel.getCurrentNights();
+                double total = r.getPricePerNight() * nights;
+                estimateSelectionLabel.setText(String.format("Selected: Room %s (%s) • %d night(s) @ $%.2f/night • Total Estimate: $%.2f",
+                        r.getRoomId(), r.getType().getDisplayName(), nights, r.getPricePerNight(), total));
+                return;
+            }
+        }
+        estimateSelectionLabel.setText("Click any room to view full booking details & estimate");
+    }
+
     public void performSearch() {
         try {
             LocalDate in = LocalDate.parse(checkInField.getText().trim());
@@ -153,6 +200,8 @@ public class SearchBookPanel extends JPanel {
                 return;
             }
 
+            long nights = ChronoUnit.DAYS.between(in, out);
+
             RoomType cat = null;
             int idx = typeFilterCombo.getSelectedIndex();
             if (idx == 1) cat = RoomType.STANDARD;
@@ -161,8 +210,11 @@ public class SearchBookPanel extends JPanel {
             else if (idx == 4) cat = RoomType.FAMILY;
 
             List<Room> available = service.searchAvailableRooms(cat, in, out);
-            tableModel.setRooms(available);
-            resultCountLabel.setText("Found " + available.size() + " available room(s) for selected dates");
+            tableModel.setData(available, nights);
+            styleTableColumns();
+
+            resultCountLabel.setText("Found " + available.size() + " available room(s) for " + nights + " night(s)");
+            updateSelectionEstimate();
 
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Please enter valid dates in YYYY-MM-DD format.", "Date Format Error", JOptionPane.ERROR_MESSAGE);

@@ -6,7 +6,7 @@ import javax.swing.border.MatteBorder;
 import java.awt.*;
 
 /**
- * Minimalist top header bar with branding and system status indicator.
+ * Minimalist top header bar with procedural logo mark, branding, and system status indicator.
  */
 public class HeaderPanel extends JPanel {
     public HeaderPanel() {
@@ -14,10 +14,18 @@ public class HeaderPanel extends JPanel {
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createCompoundBorder(
                 new MatteBorder(0, 0, 1, 0, UITheme.BORDER),
-                new EmptyBorder(16, 24, 16, 24)
+                new EmptyBorder(14, 24, 14, 24)
         ));
 
-        // Left brand & title
+        // Left brand & logo box
+        JPanel leftBrandBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 0));
+        leftBrandBox.setOpaque(false);
+
+        // Procedural Hotel Logo Icon (46x46)
+        JLabel logoLabel = new JLabel(new ImageIcon(HotelLogo.renderMark(46)));
+        leftBrandBox.add(logoLabel);
+
+        // Titles
         JPanel titleBox = new JPanel();
         titleBox.setLayout(new BoxLayout(titleBox, BoxLayout.Y_AXIS));
         titleBox.setOpaque(false);
@@ -31,13 +39,14 @@ public class HeaderPanel extends JPanel {
         brandSubtitle.setForeground(UITheme.TEXT_MUTED);
 
         titleBox.add(brandTitle);
-        titleBox.add(Box.createVerticalStrut(3));
+        titleBox.add(Box.createVerticalStrut(2));
         titleBox.add(brandSubtitle);
 
-        add(titleBox, BorderLayout.WEST);
+        leftBrandBox.add(titleBox);
+        add(leftBrandBox, BorderLayout.WEST);
 
         // Right status indicator
-        JPanel rightBox = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
+        JPanel rightBox = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 10));
         rightBox.setOpaque(false);
 
         JLabel statusDot = new JLabel("● SYSTEM ACTIVE");

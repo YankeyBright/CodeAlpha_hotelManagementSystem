@@ -20,6 +20,9 @@ public class MainFrame extends JFrame {
         super("Lumina Hotel - Reservation Management System");
         this.service = new HotelService();
 
+        // Set procedural high-DPI application icon
+        setIconImage(HotelLogo.renderMark(64));
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1100, 720);
         setMinimumSize(new Dimension(880, 580));
@@ -29,7 +32,7 @@ public class MainFrame extends JFrame {
         contentPane.setBackground(UITheme.BG_APP);
         setContentPane(contentPane);
 
-        // 1. Top Header
+        // 1. Top Header with Logo
         HeaderPanel header = new HeaderPanel();
         contentPane.add(header, BorderLayout.NORTH);
 

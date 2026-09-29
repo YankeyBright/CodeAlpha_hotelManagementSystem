@@ -6,15 +6,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RoomTableModel extends AbstractTableModel {
-    private final String[] columns = {"Room #", "Category", "Rate / Night", "Floor", "Amenities"};
     private final List<Room> rooms = new ArrayList<>();
+    private long currentNights = 1;
 
-    public void setRooms(List<Room> newRooms) {
+    public void setData(List<Room> newRooms, long nights) {
         this.rooms.clear();
         if (newRooms != null) {
             this.rooms.addAll(newRooms);
         }
-        fireTableDataChanged();
+        this.currentNights = nights > 0 ? nights : 1;
+        fireTableStructureChanged();
     }
 
     public Room getRoomAt(int rowIndex) {
@@ -24,6 +25,10 @@ public class RoomTableModel extends AbstractTableModel {
         return null;
     }
 
+    public long getCurrentNights() {
+        return currentNights;
+    }
+
     @Override
     public int getRowCount() {
         return rooms.size();
@@ -31,12 +36,20 @@ public class RoomTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return columns.length;
+        return 6;
     }
 
     @Override
     public String getColumnName(int column) {
-        return columns[column];
+        switch (column) {
+            case 0: return "Room #";
+            case 1: return "Category";
+            case 2: return "Rate / Night";
+            case 3: return "Total (" + currentNights + " night" + (currentNights > 1 ? "s" : "") + ")";
+            case 4: return "Floor";
+            case 5: return "Amenities";
+            default: return "";
+        }
     }
 
     @Override
@@ -46,8 +59,9 @@ public class RoomTableModel extends AbstractTableModel {
             case 0: return r.getRoomId();
             case 1: return r.getType().getDisplayName();
             case 2: return String.format("$%.2f", r.getPricePerNight());
-            case 3: return "Floor " + r.getFloor();
-            case 4: return r.getAmenities();
+            case 3: return String.format("$%.2f", r.getPricePerNight() * currentNights);
+            case 4: return "Floor " + r.getFloor();
+            case 5: return r.getAmenities();
             default: return "";
         }
     }
