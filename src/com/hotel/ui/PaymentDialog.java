@@ -8,7 +8,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 /**
- * Minimalist modal dialog simulating payment processing for a booking.
+ * Minimalist modal dialog for completing payment checkout for a booking.
  */
 public class PaymentDialog extends JDialog {
     private final HotelService service;
@@ -16,11 +16,11 @@ public class PaymentDialog extends JDialog {
     private Payment completedPayment = null;
 
     public PaymentDialog(Window owner, HotelService service, Reservation reservation) {
-        super(owner, "Process Payment - " + reservation.getReservationId(), ModalityType.APPLICATION_MODAL);
+        super(owner, "Payment Settlement - " + reservation.getReservationId(), ModalityType.APPLICATION_MODAL);
         this.service = service;
         this.reservation = reservation;
 
-        setSize(440, 480);
+        setSize(460, 500);
         setLocationRelativeTo(owner);
         setLayout(new BorderLayout());
         getContentPane().setBackground(UITheme.BG_APP);
@@ -32,7 +32,7 @@ public class PaymentDialog extends JDialog {
                 BorderFactory.createMatteBorder(0, 0, 1, 0, UITheme.BORDER),
                 new EmptyBorder(16, 20, 16, 20)
         ));
-        JLabel title = new JLabel("Payment Simulation");
+        JLabel title = new JLabel("Payment & Billing Settlement");
         title.setFont(UITheme.FONT_TITLE);
         title.setForeground(UITheme.PRIMARY);
 
@@ -56,7 +56,7 @@ public class PaymentDialog extends JDialog {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(8, 8, 8, 8);
 
-        JLabel totalDueLabel = new JLabel(String.format("$%.2f", reservation.getTotalPrice()));
+        JLabel totalDueLabel = new JLabel(UITheme.formatCurrency(reservation.getTotalPrice()));
         totalDueLabel.setFont(new Font(UITheme.FONT_FAMILY, Font.BOLD, 26));
         totalDueLabel.setForeground(UITheme.PRIMARY);
 
@@ -65,10 +65,10 @@ public class PaymentDialog extends JDialog {
         methodCombo.setBackground(Color.WHITE);
 
         JTextField cardNumField = UITheme.styledTextField(16);
-        cardNumField.setText("•••• •••• •••• 4242");
+        cardNumField.setText("MTN / Telecel MoMo / Visa •••• 4242");
 
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
-        JLabel dueTitle = new JLabel("TOTAL AMOUNT DUE");
+        JLabel dueTitle = new JLabel("TOTAL AMOUNT DUE (GHANA CEDIS)");
         dueTitle.setFont(UITheme.FONT_BADGE);
         dueTitle.setForeground(UITheme.TEXT_MUTED);
         body.add(dueTitle, gbc);
@@ -85,7 +85,7 @@ public class PaymentDialog extends JDialog {
         body.add(methodCombo, gbc);
 
         gbc.gridx = 0; gbc.gridy = 3;
-        JLabel refTitle = new JLabel("Card / Account Ref:");
+        JLabel refTitle = new JLabel("Account / Card Ref:");
         refTitle.setFont(UITheme.FONT_BODY);
         body.add(refTitle, gbc);
 
@@ -99,18 +99,18 @@ public class PaymentDialog extends JDialog {
         footer.setBackground(UITheme.BG_APP);
         footer.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, UITheme.BORDER));
 
-        JButton payBtn = UITheme.primaryButton(String.format("Pay $%.2f Now", reservation.getTotalPrice()));
+        JButton payBtn = UITheme.primaryButton("Confirm " + UITheme.formatCurrency(reservation.getTotalPrice()));
         payBtn.addActionListener(e -> {
             PaymentMethod method = (PaymentMethod) methodCombo.getSelectedItem();
             Payment p = service.processPayment(reservation.getReservationId(), reservation.getTotalPrice(), method);
             this.completedPayment = p;
             JOptionPane.showMessageDialog(this,
-                    "Payment of " + String.format("$%.2f", p.getAmount()) + " via " + p.getMethod().getLabel() + " succeeded!\nTransaction ID: " + p.getTransactionRef(),
-                    "Payment Successful", JOptionPane.INFORMATION_MESSAGE);
+                    "Payment of " + UITheme.formatCurrency(p.getAmount()) + " via " + p.getMethod().getLabel() + " received successfully!\nTransaction Ref: " + p.getTransactionRef(),
+                    "Payment Confirmed", JOptionPane.INFORMATION_MESSAGE);
             dispose();
         });
 
-        JButton cancelBtn = UITheme.secondaryButton("Skip / Pay Later");
+        JButton cancelBtn = UITheme.secondaryButton("Pay on Arrival");
         cancelBtn.addActionListener(e -> dispose());
 
         footer.add(cancelBtn);

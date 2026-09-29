@@ -6,7 +6,7 @@ import javax.swing.border.MatteBorder;
 import java.awt.*;
 
 /**
- * Minimalist top header bar with procedural logo mark, branding, and system status indicator.
+ * Minimalist luxury top header bar with procedural gold crest, branding, and reception status.
  */
 public class HeaderPanel extends JPanel {
     public HeaderPanel() {
@@ -18,11 +18,11 @@ public class HeaderPanel extends JPanel {
         ));
 
         // Left brand & logo box
-        JPanel leftBrandBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 0));
+        JPanel leftBrandBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 0));
         leftBrandBox.setOpaque(false);
 
-        // Procedural Hotel Logo Icon (46x46)
-        JLabel logoLabel = new JLabel(new ImageIcon(HotelLogo.renderMark(46)));
+        // Procedural Luxury Hotel Crest Icon (46x46)
+        JLabel logoLabel = new JLabel(new ImageIcon(HotelLogo.renderMark(48)));
         leftBrandBox.add(logoLabel);
 
         // Titles
@@ -30,11 +30,11 @@ public class HeaderPanel extends JPanel {
         titleBox.setLayout(new BoxLayout(titleBox, BoxLayout.Y_AXIS));
         titleBox.setOpaque(false);
 
-        JLabel brandTitle = new JLabel("LUMINA HOTEL");
+        JLabel brandTitle = new JLabel("LUMINA HOTEL & RESIDENCES");
         brandTitle.setFont(UITheme.FONT_HEADER);
         brandTitle.setForeground(UITheme.PRIMARY);
 
-        JLabel brandSubtitle = new JLabel("Reservation Management & Guest Services System");
+        JLabel brandSubtitle = new JLabel("Luxury Hospitality & Guest Services • Accra, Ghana");
         brandSubtitle.setFont(UITheme.FONT_SUBTITLE);
         brandSubtitle.setForeground(UITheme.TEXT_MUTED);
 
@@ -49,7 +49,7 @@ public class HeaderPanel extends JPanel {
         JPanel rightBox = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 10));
         rightBox.setOpaque(false);
 
-        JLabel statusDot = new JLabel("● SYSTEM ACTIVE");
+        JLabel statusDot = new JLabel("● CONCIERGE DESK ONLINE");
         statusDot.setFont(UITheme.FONT_BADGE);
         statusDot.setForeground(UITheme.SUCCESS);
 

@@ -50,15 +50,12 @@ public class Room {
         return amenities;
     }
 
-    /**
-     * Serializes room data to CSV line.
-     */
     public String toCsv() {
         return roomId + "," + type.name() + "," + pricePerNight + "," + floor + ",\"" + amenities + "\"";
     }
 
     @Override
     public String toString() {
-        return "Room " + roomId + " (" + type.getDisplayName() + ") - $" + String.format("%.2f", pricePerNight) + "/night";
+        return "Room " + roomId + " (" + type.getDisplayName() + ") - GH₵ " + String.format("%,.2f", pricePerNight) + "/night";
     }
 }

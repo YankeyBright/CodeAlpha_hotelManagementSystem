@@ -41,7 +41,6 @@ public class FileStorage {
                 line = line.trim();
                 if (line.isEmpty() || line.startsWith("#")) continue;
 
-                // Handles comma splitting with quoted strings
                 String[] parts = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
                 if (parts.length >= 3) {
                     try {
@@ -52,7 +51,7 @@ public class FileStorage {
                         String amenities = parts.length >= 5 ? parts[4].replace("\"", "").trim() : type.getDescription();
                         list.add(new Room(roomId, type, price, floor, amenities));
                     } catch (Exception ex) {
-                        System.err.println("Skipping malformed room row: " + line + " (" + ex.getMessage() + ")");
+                        System.err.println("Skipping malformed room row: " + line);
                     }
                 }
             }
@@ -60,7 +59,6 @@ public class FileStorage {
             System.err.println("Warning loading rooms: " + e.getMessage());
         }
 
-        // If file was empty or corrupted, reinitialize defaults
         if (list.isEmpty()) {
             initDefaultRoomsIfEmpty();
             return loadRooms();
@@ -221,16 +219,16 @@ public class FileStorage {
         File file = new File(ROOMS_FILE);
         if (!file.exists() || file.length() == 0) {
             List<Room> defaults = Arrays.asList(
-                    new Room("101", RoomType.STANDARD, 85.00, 1, "Queen Bed, Ensuite Bath, High-Speed Wi-Fi, 43-inch Smart TV"),
-                    new Room("102", RoomType.STANDARD, 85.00, 1, "Queen Bed, Ensuite Bath, High-Speed Wi-Fi, Coffee Maker"),
-                    new Room("103", RoomType.STANDARD, 90.00, 1, "Two Twin Beds, Garden View, High-Speed Wi-Fi, Ensuite Bath"),
-                    new Room("201", RoomType.DELUXE, 145.00, 2, "King Bed, Skyline View, Mini-Bar, Work Desk, Nespresso"),
-                    new Room("202", RoomType.DELUXE, 145.00, 2, "King Bed, City View, Marble Bath, Mini-Bar, Smart TV"),
-                    new Room("203", RoomType.DELUXE, 155.00, 2, "King Bed, Private Balcony, Espresso Machine, City View"),
-                    new Room("301", RoomType.SUITE, 260.00, 3, "Master Bedroom, Living Area, Deep Soaking Tub, Panoramic View"),
-                    new Room("302", RoomType.SUITE, 280.00, 3, "Penthouse Suite, Private Terrace, Butler Service, Kitchenette"),
-                    new Room("401", RoomType.FAMILY, 320.00, 4, "Two Interconnected Bedrooms, Kitchenette, Dining Area, 2 Baths"),
-                    new Room("402", RoomType.FAMILY, 340.00, 4, "Two King Bedrooms, Large Balcony, Kitchenette, Lounge Space")
+                    new Room("101", RoomType.STANDARD, 850.00, 1, "Queen Bed, Ensuite Bath, High-Speed Wi-Fi, 43-inch Smart TV"),
+                    new Room("102", RoomType.STANDARD, 850.00, 1, "Queen Bed, Ensuite Bath, High-Speed Wi-Fi, Coffee Maker"),
+                    new Room("103", RoomType.STANDARD, 900.00, 1, "Two Twin Beds, Garden View, High-Speed Wi-Fi, Ensuite Bath"),
+                    new Room("201", RoomType.DELUXE, 1450.00, 2, "King Bed, Skyline View, Mini-Bar, Work Desk, Nespresso"),
+                    new Room("202", RoomType.DELUXE, 1450.00, 2, "King Bed, City View, Marble Bath, Mini-Bar, Smart TV"),
+                    new Room("203", RoomType.DELUXE, 1550.00, 2, "King Bed, Private Balcony, Espresso Machine, City View"),
+                    new Room("301", RoomType.SUITE, 2600.00, 3, "Master Bedroom, Living Area, Deep Soaking Tub, Panoramic View"),
+                    new Room("302", RoomType.SUITE, 2800.00, 3, "Penthouse Suite, Private Terrace, Butler Service, Kitchenette"),
+                    new Room("401", RoomType.FAMILY, 3200.00, 4, "Two Interconnected Bedrooms, Kitchenette, Dining Area, 2 Baths"),
+                    new Room("402", RoomType.FAMILY, 3400.00, 4, "Two King Bedrooms, Large Balcony, Kitchenette, Lounge Space")
             );
             saveRooms(defaults);
         }

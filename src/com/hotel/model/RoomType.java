@@ -2,13 +2,13 @@ package com.hotel.model;
 
 /**
  * Enum defining the room categories available in the hotel,
- * including base rate, max occupancy, and a concise description.
+ * including base rate in Ghana Cedis (GH₵), max occupancy, and description.
  */
 public enum RoomType {
-    STANDARD("Standard Room", 85.00, 2, "Cozy room with queen bed, ensuite bath, and high-speed Wi-Fi"),
-    DELUXE("Deluxe Room", 145.00, 3, "Spacious room with king bed, city view, mini-bar, and work desk"),
-    SUITE("Executive Suite", 260.00, 4, "Luxury suite with separate living area, panoramic view, and jacuzzi"),
-    FAMILY("Family Suite", 320.00, 5, "Two interconnected bedrooms, kitchenette, and lounge area");
+    STANDARD("Standard Room", 850.00, 2, "Cozy room with queen bed, ensuite bath, and high-speed Wi-Fi"),
+    DELUXE("Deluxe Room", 1450.00, 3, "Spacious room with king bed, city view, mini-bar, and work desk"),
+    SUITE("Executive Suite", 2600.00, 4, "Luxury suite with separate living area, panoramic view, and jacuzzi"),
+    FAMILY("Family Suite", 3200.00, 5, "Two interconnected bedrooms, kitchenette, and lounge area");
 
     private final String displayName;
     private final double basePrice;
@@ -40,6 +40,6 @@ public enum RoomType {
 
     @Override
     public String toString() {
-        return displayName + " ($" + String.format("%.2f", basePrice) + "/night)";
+        return displayName + " (GH₵ " + String.format("%,.2f", basePrice) + "/night)";
     }
 }

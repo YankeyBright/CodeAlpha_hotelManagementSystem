@@ -13,7 +13,7 @@ import java.time.temporal.ChronoUnit;
 
 /**
  * Minimalist modal dialog for completing a room reservation.
- * Features instant real-time estimate calculation as dates are entered.
+ * Features instant real-time estimate calculation in Ghana Cedis (GH₵).
  */
 public class BookingDialog extends JDialog {
     private final HotelService service;
@@ -52,8 +52,8 @@ public class BookingDialog extends JDialog {
         title.setFont(UITheme.FONT_TITLE);
         title.setForeground(UITheme.PRIMARY);
 
-        JLabel sub = new JLabel(String.format("Nightly Rate: $%.2f / night  •  Floor %d  •  %s",
-                room.getPricePerNight(), room.getFloor(), room.getAmenities()));
+        JLabel sub = new JLabel(String.format("Nightly Rate: %s / night  •  Floor %d  •  %s",
+                UITheme.formatCurrency(room.getPricePerNight()), room.getFloor(), room.getAmenities()));
         sub.setFont(UITheme.FONT_SMALL);
         sub.setForeground(UITheme.TEXT_MUTED);
 
@@ -87,7 +87,6 @@ public class BookingDialog extends JDialog {
         emailField = UITheme.styledTextField(16);
         notesField = UITheme.styledTextField(16);
 
-        // Auto-fill returning guest by phone
         phoneField.addFocusListener(new java.awt.event.FocusAdapter() {
             @Override
             public void focusLost(java.awt.event.FocusEvent e) {
@@ -102,7 +101,6 @@ public class BookingDialog extends JDialog {
             }
         });
 
-        // Add form rows
         addFormRow(form, gbc, 0, "Check-In (YYYY-MM-DD):", inDateField);
         addFormRow(form, gbc, 1, "Check-Out (YYYY-MM-DD):", outDateField);
         addFormRow(form, gbc, 2, "Guest Full Name:", nameField);
@@ -135,7 +133,7 @@ public class BookingDialog extends JDialog {
         estLeft.add(estHeader);
         estLeft.add(estimateBreakdownLabel);
 
-        estimateTotalLabel = new JLabel("$0.00");
+        estimateTotalLabel = new JLabel("GH₵ 0.00");
         estimateTotalLabel.setFont(new Font(UITheme.FONT_FAMILY, Font.BOLD, 22));
         estimateTotalLabel.setForeground(UITheme.PRIMARY);
         estimateTotalLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -171,7 +169,6 @@ public class BookingDialog extends JDialog {
         footer.add(confirmBtn);
         add(footer, BorderLayout.SOUTH);
 
-        // DocumentListeners for live recalculation on every keystroke
         DocumentListener dateListener = new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { updateSummary(); }
             public void removeUpdate(DocumentEvent e) { updateSummary(); }
@@ -203,8 +200,8 @@ public class BookingDialog extends JDialog {
 
             if (nights > 0) {
                 double total = nights * selectedRoom.getPricePerNight();
-                estimateBreakdownLabel.setText(String.format("%d night(s) × $%.2f / night", nights, selectedRoom.getPricePerNight()));
-                estimateTotalLabel.setText(String.format("$%.2f", total));
+                estimateBreakdownLabel.setText(String.format("%d night(s) × %s / night", nights, UITheme.formatCurrency(selectedRoom.getPricePerNight())));
+                estimateTotalLabel.setText(UITheme.formatCurrency(total));
                 estimateNightsLabel.setText(in + " to " + out);
                 estimateTotalLabel.setForeground(UITheme.PRIMARY);
             } else {

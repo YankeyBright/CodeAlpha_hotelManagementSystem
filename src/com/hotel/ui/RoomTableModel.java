@@ -58,8 +58,8 @@ public class RoomTableModel extends AbstractTableModel {
         switch (columnIndex) {
             case 0: return r.getRoomId();
             case 1: return r.getType().getDisplayName();
-            case 2: return String.format("$%.2f", r.getPricePerNight());
-            case 3: return String.format("$%.2f", r.getPricePerNight() * currentNights);
+            case 2: return UITheme.formatCurrency(r.getPricePerNight()) + " / night";
+            case 3: return UITheme.formatCurrency(r.getPricePerNight() * currentNights);
             case 4: return "Floor " + r.getFloor();
             case 5: return r.getAmenities();
             default: return "";

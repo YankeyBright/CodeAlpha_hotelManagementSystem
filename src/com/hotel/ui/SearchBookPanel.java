@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * Clean room search, category filter, and booking workflow panel.
- * Displays calculated duration and total price estimates directly in the inventory table.
+ * Displays calculated duration and total price estimates in Ghana Cedis (GH₵).
  */
 public class SearchBookPanel extends JPanel {
     private final HotelService service;
@@ -86,7 +86,6 @@ public class SearchBookPanel extends JPanel {
         table.setSelectionBackground(UITheme.ACCENT_LIGHT);
         table.setSelectionForeground(UITheme.TEXT_MAIN);
 
-        // Selection listener to update real-time estimate text
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 updateSelectionEstimate();
@@ -168,10 +167,10 @@ public class SearchBookPanel extends JPanel {
         if (table.getColumnCount() >= 6) {
             table.getColumnModel().getColumn(0).setPreferredWidth(80);  // Room #
             table.getColumnModel().getColumn(1).setPreferredWidth(140); // Category
-            table.getColumnModel().getColumn(2).setPreferredWidth(110); // Rate
-            table.getColumnModel().getColumn(3).setPreferredWidth(130); // Total
+            table.getColumnModel().getColumn(2).setPreferredWidth(130); // Rate
+            table.getColumnModel().getColumn(3).setPreferredWidth(150); // Total
             table.getColumnModel().getColumn(4).setPreferredWidth(80);  // Floor
-            table.getColumnModel().getColumn(5).setPreferredWidth(340); // Amenities
+            table.getColumnModel().getColumn(5).setPreferredWidth(320); // Amenities
         }
     }
 
@@ -182,8 +181,8 @@ public class SearchBookPanel extends JPanel {
             if (r != null) {
                 long nights = tableModel.getCurrentNights();
                 double total = r.getPricePerNight() * nights;
-                estimateSelectionLabel.setText(String.format("Selected: Room %s (%s) • %d night(s) @ $%.2f/night • Total Estimate: $%.2f",
-                        r.getRoomId(), r.getType().getDisplayName(), nights, r.getPricePerNight(), total));
+                estimateSelectionLabel.setText(String.format("Selected: Room %s (%s) • %d night(s) @ %s/night • Total: %s",
+                        r.getRoomId(), r.getType().getDisplayName(), nights, UITheme.formatCurrency(r.getPricePerNight()), UITheme.formatCurrency(total)));
                 return;
             }
         }
@@ -240,14 +239,12 @@ public class SearchBookPanel extends JPanel {
 
         Reservation res = dlg.getCreatedReservation();
         if (res != null) {
-            // Prompt payment simulation
             PaymentDialog payDlg = new PaymentDialog(win, service, res);
             payDlg.setVisible(true);
 
-            // Generate invoice
             File invoiceFile = InvoiceGenerator.generateInvoiceHtml(res, service.getPaymentsForReservation(res.getReservationId()));
             int choice = JOptionPane.showConfirmDialog(this,
-                    "Reservation " + res.getReservationId() + " successfully confirmed!\nWould you like to open the printable invoice now?",
+                    "Reservation " + res.getReservationId() + " successfully confirmed!\nWould you like to open the official printable invoice now?",
                     "Booking Complete", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
 
             if (choice == JOptionPane.YES_OPTION) {

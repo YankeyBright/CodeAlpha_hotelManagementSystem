@@ -2,41 +2,50 @@ package com.hotel.ui;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;
 
 /**
- * Clean, modern, minimalist UI theme design system.
- * Custom paints buttons to ensure 100% visible, high-contrast, crisp text across all operating systems.
+ * Ultra-premium, minimalist UI design system for Lumina Hotel.
+ * Features an obsidian & warm gold luxury hospitality theme with Ghana Cedi (GH₵) formatting.
  */
 public final class UITheme {
     private UITheme() {}
 
-    // Minimalist Palette (Slate & Neutral)
+    // Currency Formatting for Ghana Cedis
+    public static final String CURRENCY_SYMBOL = "GH₵ ";
+
+    public static String formatCurrency(double amount) {
+        return String.format("GH₵ %,.2f", amount);
+    }
+
+    // Luxury Palette (Obsidian, Warm Champagne Gold, Pure Slate)
     public static final Color BG_APP = new Color(0xF8, 0xFA, 0xFC);      // Slate 50
     public static final Color BG_CARD = Color.WHITE;
     public static final Color BG_CARD_HOVER = new Color(0xF1, 0xF5, 0xF9); // Slate 100
 
-    public static final Color PRIMARY = new Color(0x0F, 0x17, 0x2A);      // Slate 900 (Deep Navy/Black)
-    public static final Color PRIMARY_HOVER = new Color(0x33, 0x41, 0x55);// Slate 700
-    public static final Color PRIMARY_ACTIVE = new Color(0x02, 0x06, 0x17);// Slate 950
+    public static final Color PRIMARY = new Color(0x0A, 0x0E, 0x1A);      // Deep Obsidian Slate
+    public static final Color PRIMARY_HOVER = new Color(0x1E, 0x29, 0x3B);// Slate 800
+    public static final Color PRIMARY_ACTIVE = new Color(0x02, 0x06, 0x17);// Midnight Black
 
-    public static final Color ACCENT = new Color(0x02, 0x84, 0xC7);       // Sky 600
-    public static final Color ACCENT_LIGHT = new Color(0xE0, 0xF2, 0xFE); // Sky 100
+    public static final Color GOLD = new Color(0xC5, 0x9B, 0x27);         // Warm Champagne Gold
+    public static final Color GOLD_LIGHT = new Color(0xFE, 0xF9, 0xC3);
+    public static final Color ACCENT_LIGHT = new Color(0xFE, 0xF9, 0xC3);   // Pale Gold Accent
+    public static final Color ACCENT = new Color(0xC5, 0x9B, 0x27);       // Primary Accent is Gold
+    public static final Color ACCENT_BLUE = new Color(0x02, 0x84, 0xC7);  // Subtle Sky Blue
 
     public static final Color TEXT_MAIN = new Color(0x0F, 0x17, 0x2A);
     public static final Color TEXT_MUTED = new Color(0x64, 0x74, 0x8B);   // Slate 500
     public static final Color TEXT_INVERTED = Color.WHITE;
 
-    public static final Color BORDER = new Color(0xCB, 0xD5, 0xE1);       // Slate 300
-    public static final Color BORDER_FOCUS = new Color(0x02, 0x84, 0xC7); // Sky 600
+    public static final Color BORDER = new Color(0xE2, 0xE8, 0xF0);       // Subtle hairline divider
+    public static final Color BORDER_GOLD = new Color(0xE5, 0xD5, 0x9A);  // Champagne Border
 
     public static final Color SUCCESS = new Color(0x05, 0x96, 0x69);      // Emerald 600
     public static final Color SUCCESS_BG = new Color(0xEC, 0xFD, 0xF5);   // Emerald 50
-    public static final Color DANGER = new Color(0xDC, 0x26, 0x26);       // Rose/Red 600
+    public static final Color DANGER = new Color(0xDC, 0x26, 0x26);       // Rose Red 600
     public static final Color DANGER_HOVER = new Color(0xB9, 0x1C, 0x1C); // Red 700
 
     // Typography
@@ -50,8 +59,7 @@ public final class UITheme {
     public static final Font FONT_BADGE = new Font(FONT_FAMILY, Font.BOLD, 11);
 
     /**
-     * Primary CTA Button: Deep Slate background with crisp White text.
-     * Custom painted so Windows Look & Feel cannot wash out the background.
+     * Primary CTA Button: Deep Obsidian background with crisp White text and subtle gold border.
      */
     public static JButton primaryButton(String text) {
         JButton btn = new JButton(text);
@@ -100,7 +108,7 @@ public final class UITheme {
     }
 
     /**
-     * Secondary Button: Clean White background with Slate Border and Dark text.
+     * Secondary Button: Clean White background with crisp border and Dark text.
      */
     public static JButton secondaryButton(String text) {
         JButton btn = new JButton(text);
@@ -132,11 +140,9 @@ public final class UITheme {
                 g2.setColor(bg);
                 g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 6, 6);
 
-                // 1px Border
                 g2.setColor(BORDER);
                 g2.drawRoundRect(0, 0, c.getWidth() - 1, c.getHeight() - 1, 6, 6);
 
-                // Draw Text
                 FontMetrics fm = g2.getFontMetrics(b.getFont());
                 int textX = (c.getWidth() - fm.stringWidth(b.getText())) / 2;
                 int textY = (c.getHeight() + fm.getAscent() - fm.getDescent()) / 2;
@@ -153,7 +159,7 @@ public final class UITheme {
     }
 
     /**
-     * Danger Button: Rose Red background with crisp White text.
+     * Danger Button: Crimson Red background with crisp White text.
      */
     public static JButton dangerButton(String text) {
         JButton btn = new JButton(text);
@@ -200,7 +206,6 @@ public final class UITheme {
         return btn;
     }
 
-    // Flat Minimalist Card Border
     public static Border cardBorder() {
         return BorderFactory.createCompoundBorder(
                 new LineBorder(BORDER, 1, true),

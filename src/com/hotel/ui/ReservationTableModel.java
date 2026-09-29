@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReservationTableModel extends AbstractTableModel {
-    private final String[] columns = {"Res ID", "Guest Name", "Phone", "Room #", "Check-In", "Check-Out", "Nights", "Total Price", "Status"};
+    private final String[] columns = {"Res ID", "Guest Name", "Phone", "Room #", "Check-In", "Check-Out", "Nights", "Total Amount", "Status"};
     private final List<Reservation> reservations = new ArrayList<>();
 
     public void setReservations(List<Reservation> newReservations) {
@@ -50,7 +50,7 @@ public class ReservationTableModel extends AbstractTableModel {
             case 4: return res.getCheckInDate().toString();
             case 5: return res.getCheckOutDate().toString();
             case 6: return res.getNumberOfNights() + " nights";
-            case 7: return String.format("$%.2f", res.getTotalPrice());
+            case 7: return UITheme.formatCurrency(res.getTotalPrice());
             case 8: return res.getStatus().getLabel();
             default: return "";
         }
