@@ -49,7 +49,7 @@ public class HeaderPanel extends JPanel {
         JPanel rightBox = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 10));
         rightBox.setOpaque(false);
 
-        JLabel statusDot = new JLabel("● CONCIERGE DESK ONLINE");
+        JLabel statusDot = new JLabel("● FRONT DESK ACTIVE");
         statusDot.setFont(UITheme.FONT_BADGE);
         statusDot.setForeground(UITheme.SUCCESS);
 

@@ -72,7 +72,7 @@ public class InvoiceGenerator {
                 "    <div class=\"header\">\n" +
                 "      <div class=\"brand\">\n" +
                 "        <h1>LUMINA HOTEL & RESIDENCES</h1>\n" +
-                "        <p>12 Senchi Street, Airport Residential Area, Accra, Ghana<br>concierge@luminahotel.com.gh • +233 (0) 30 277 8899<br>GRA TIN: C0029841284</p>\n" +
+                "        <p>12 Senchi Street, Airport Residential Area, Accra, Ghana<br>reservations@luminahotel.com.gh • +233 (0) 30 277 8899<br>GRA TIN: C0029841284</p>\n" +
                 "      </div>\n" +
                 "      <div class=\"inv-meta\">\n" +
                 "        <h2>OFFICIAL INVOICE</h2>\n" +
